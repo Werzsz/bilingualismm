@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Сказки: Қызыл Түлкі и Көк Қоян</title>
+<style>
+  body{
+    background:#e9e7e2;
+    font-family:Arial,Helvetica,sans-serif;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  header{
+    background:#fff;
+    width:100%;
+    padding:10px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+    position:sticky;
+    top:0;
+    z-index:1000;
+  }
+  header button{
+    padding:8px 14px;
+    border:1px solid #aaa;
+    border-radius:4px;
+    background:#fff;
+    cursor:pointer;
+  }
+  .book{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:20px;
+    flex-wrap:wrap;
+  }
+  .page{
+    flex:1 1 300px;
+    max-width:360px;
+    height:520px;
+    background:#fff;
+    box-shadow:0 4px 10px rgba(0,0,0,.2);
+    padding:16px;
+    overflow:auto;
+    border-radius:4px;
+  }
+  .controls{
+    display:flex;
+    gap:12px;
+    margin:10px;
+  }
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <button onclick="showBook('tulki')">Қызыл Түлкі / Рыжая Лисичка</button>
+  <button onclick="showBook('qoyan')">Көк Қоян / Голубой Зайчик</button>
+</header>
+
+<div id="tulkiBook" class="book-container">
+  <h2>Қызыл Түлкі / Рыжая Лисичка</h2>
+  <div class="book">
+    <div class="page" id="tulkiLeft"></div>
+    <div class="page" id="tulkiRight"></div>
+  </div>
+  <div class="controls">
+    <button onclick="prevSpread('tulki')">← Назад</button>
+    <span id="tulkiInfo"></span>
+    <button onclick="nextSpread('tulki')">Вперёд →</button>
+  </div>
+  <div id="tulkiContent" style="display:none">
+<p>Қызыл Түлкі / Рыжая Лисичка</p>
+<p>Ерте заманда бір әдемі қызыл түлкі орманда өмір сүріпті. Давным-давно жила в лесу красивая рыжая лисичка.</p>
+<p>Ол өте ақылды болғанымен, жалғыздықтан қиналатын. Она была очень умной, но страдала от одиночества.</p>
+<p>Түлкі әрдайым достар табуды армандайтын. Лисичка всегда мечтала найти друзей.</p>
+<p>Бір күні ол орманға тереңірек кіріп кетті. Однажды она зашла глубже в лес.</p>
+<p>Ол жерде ол кішкентай кірпімен кездесті. Там она встретила маленького ежа.</p>
+</div>
+</div>
+
+<div id="qoyanBook" class="book-container hidden">
+  <h2>Көк Қоян / Голубой Зайчик</h2>
+  <div class="book">
+    <div class="page" id="qoyanLeft"></div>
+    <div class="page" id="qoyanRight"></div>
+  </div>
+  <div class="controls">
+    <button onclick="prevSpread('qoyan')">← Назад</button>
+    <span id="qoyanInfo"></span>
+    <button onclick="nextSpread('qoyan')">Вперёд →</button>
+  </div>
+  <div id="qoyanContent" style="display:none">
+<p>Көк Қоян / Голубой Зайчик</p>
+<p>Ерте заманда көк түсті бір қоян өмір сүріпті. Давным-давно жил голубого цвета зайчик.</p>
+<p>Ол әдеттегі қояндар сияқты емес, ерекше армандары бар еді. Он был не таким, как обычные зайцы — у него были особые мечты.</p>
+<p>Қоян аспанға ұшуды қалапты. Зайчик мечтал летать в небе.</p>
+<p>Күнде ол бұлттарға қарап, қанаты болса ғой деп ойлайтын. Каждый день он смотрел на облака и думал: «Ах, если бы у меня были крылья!»</p>
+<p>Бір күні қоян орманда жылтыраған қауырсын тауып алды. Однажды в лесу он нашёл сверкающее перо.</p>
+</div>
+</div>
+
+<script>
+let books = { tulki: {pages:[], current:0}, qoyan: {pages:[], current:0} };
+
+function paginate(bookId){
+  const content = document.getElementById(bookId+"Content").innerHTML;
+  const paragraphs = content.match(/<p>.*?<\/p>/gs) || [];
+  const perPage = 3;
+  books[bookId].pages = [];
+  for(let i=0;i<paragraphs.length;i+=perPage){
+    books[bookId].pages.push(paragraphs.slice(i,i+perPage).join(""));
+  }
+  if(books[bookId].pages.length % 2 !== 0) books[bookId].pages.push("");
+  books[bookId].current = 0;
+  render(bookId);
+}
+
+function render(bookId){
+  const b = books[bookId];
+  document.getElementById(bookId+"Left").innerHTML = b.pages[b.current] || "";
+  document.getElementById(bookId+"Right").innerHTML = b.pages[b.current+1] || "";
+  document.getElementById(bookId+"Info").innerText = `${b.current+1}-${b.current+2} / ${b.pages.length}`;
+}
+
+function nextSpread(bookId){
+  const b = books[bookId];
+  if(b.current < b.pages.length-2){
+    b.current+=2;
+    render(bookId);
+  }
+}
+function prevSpread(bookId){
+  const b = books[bookId];
+  if(b.current > 0){
+    b.current-=2;
+    render(bookId);
+  }
+}
+
+function showBook(bookId){
+  document.getElementById("tulkiBook").classList.add("hidden");
+  document.getElementById("qoyanBook").classList.add("hidden");
+  document.getElementById(bookId+"Book").classList.remove("hidden");
+}
+
+// Инициализация обеих книг
+paginate("tulki");
+paginate("qoyan");
+</script>
+
+</body>
+</html>
